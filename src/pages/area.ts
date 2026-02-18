@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { createArea, getAllAreas } from '../dao/area';
+import { createArea, editArea, getAllAreas } from '../dao/area';
 import { Area } from '../models/area';
 
 const router = express.Router();
@@ -38,6 +38,21 @@ router.post('/', async (req: any, res: any) => {
   }
 });
 
+/**
+ * @route POST /area/edit
+ */
+router.post('/edit', async (req: any, res: any) => {
+  if(!req.body.id || !req.body.area || !req.body.area.name || !req.body.area.description || !req.body.area.inviteLink) {
+    res.status(403).send({message: "Missing parameters"})
+  }
+  
+  const editedArea = await editArea(req.body.id, req.body.area as Area);
 
+  if (editedArea) {
+    res.send({ area: editedArea });
+  } else {
+    res.status(500).send({ message: 'Failed to save area'});
+  }
+});
 
 export default router;
