@@ -1,7 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { createArea, editArea, getAllAreas } from '../dao/area';
+import { addInterestedToken, createArea, editArea, getAllAreas } from '../dao/area';
 import { Area } from '../models/area';
+import { checkToken } from '../dao/anonUser';
 
 const router = express.Router();
 
@@ -29,7 +30,10 @@ router.post('/', async (req: any, res: any) => {
     res.status(403).send({message: "Missing area parameters"})
   }
   
-  const newArea = await createArea(req.body as Area);
+  const area = req.body as Area
+  area.interestedUsers = []
+
+  const newArea = await createArea(area);
 
   if (newArea) {
     res.send({ area: newArea });
@@ -42,16 +46,39 @@ router.post('/', async (req: any, res: any) => {
  * @route POST /area/edit
  */
 router.post('/edit', async (req: any, res: any) => {
-  if(!req.body.id || !req.body.area || !req.body.area.name || !req.body.area.description || !req.body.area.inviteLink) {
-    res.status(403).send({message: "Missing parameters"})
+  if(!req.body.id || !req.body.area) {
+    res.status(403).send({message: "Missing id or area parameters"})
   }
   
-  const editedArea = await editArea(req.body.id, req.body.area as Area);
+  const editedArea = await editArea(req.body.id, req.body.area as Partial<Area>);
 
   if (editedArea) {
     res.send({ area: editedArea });
   } else {
     res.status(500).send({ message: 'Failed to save area'});
+  }
+});
+
+/**
+ * @route POST /area/interest
+ */
+router.post('/interest', async (req: any, res: any) => {
+  if(!req.body.id || !req.body.token) {
+    res.status(403).send({message: "Missing id or token parameters"})
+  }
+
+  const validToken = await checkToken(req.body.token)
+
+  if(!validToken) {
+    res.status(403).send({message: "Invalid token"})
+  }
+  
+  const addedToken = await addInterestedToken(req.body.id, req.body.token);
+
+  if (addedToken) {
+    res.send({ token: addedToken });
+  } else {
+    res.status(500).send({ message: 'Failed to edit area interest'});
   }
 });
 

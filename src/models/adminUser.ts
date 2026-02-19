@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
-export const userSchema = new mongoose.Schema(
+export const adminUserSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
   },
-  { collection: "users" }
+  { collection: "adminUser" }
 );
 
-export const userModel = mongoose.model("UserModel", userSchema);
+export const adminUserModel = mongoose.model("AdminUserModel", adminUserSchema);
 
-export interface User {
+export interface AdminUser {
   username: string,
   password: string
 }

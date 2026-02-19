@@ -20,21 +20,28 @@ export async function createArea(area: Area): Promise<Area | undefined> {
   });
 }
 
-export async function editArea(id: string, area: Area): Promise<Area | undefined> {
-  const foundArea = await areaModel.findById(id)
+export async function editArea(id: string, area: Partial<Area>): Promise<Area | undefined> {
+  return await areaModel.findOneAndUpdate(
+    {_id: id},
+    {$set: area},
+    {returnDocument: 'after'}
+  ).then((updatedArea) => {
+    if (updatedArea === null) {
+      return;
+    }
+    return updatedArea;
+  });
+}
 
-  if (foundArea === null) {
-    return;
-  }
-  else {
-    foundArea.name = area.name
-    foundArea.description = area.description
-    foundArea.inviteLink = area.inviteLink
-    return await foundArea.save().then((area) => {
-      if (area === null) {
-        return;
-      }
-      return area;
-    });    
-  }
+export async function addInterestedToken(id: string, token: string): Promise<string | undefined> {
+  return await areaModel.findOneAndUpdate(
+    {_id: id},
+    {$push: { interestedUsers: token }},
+    {returnDocument: 'after'}
+  ).then((updatedArea) => {
+    if (updatedArea === null) {
+      return;
+    }
+    return token;
+  });
 }
