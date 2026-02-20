@@ -14,7 +14,6 @@ router.use(express.json());
  * @route GET /area
  */
 router.get('/', async (req: any, res: any) => {
-  console.log("got area reqest")
   const areas = await getAllAreas();
   
   if (areas) {

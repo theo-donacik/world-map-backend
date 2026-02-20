@@ -33,7 +33,6 @@ app.use(cors(
     }
 ));
 
-console.log(process.env.FRONTEND_URL)
 app.use('/login', loginRouter);
 app.use('/area', areaRouter);
 app.use('/state', stateRouter);
