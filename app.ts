@@ -30,9 +30,10 @@ app.use(cors(
     {
       credentials: true,
       origin: process.env.FRONTEND_URL || 'http://localhost:3000'
-
     }
 ));
+
+console.log(process.env.FRONTEND_URL)
 app.use('/login', loginRouter);
 app.use('/area', areaRouter);
 app.use('/state', stateRouter);
