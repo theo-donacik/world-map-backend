@@ -9,6 +9,7 @@ services:
     environment:
       DB_CONNECTION_STRING: mongodb://mongo:27017/map
       DISCORD_TOKEN: ${DISCORD_TOKEN}
+      FRONTEND_URL: https://theo-donacik.github.io
     depends_on:
       - mongo
 
