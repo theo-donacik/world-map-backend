@@ -10,10 +10,13 @@ export async function getUser(username: string): Promise<AdminUser | undefined> 
   });
 }
 
-export async function isCorrectPassword(
-  username: string,
-  password: string
-): Promise<boolean> {
-  const user = await getUser(username);
-  return !!user && user.password === password;
+export async function checkAdminToken(token: string) {
+  const user = await adminUserModel.findOne({ token: token }).then((user) => {
+    if (user === null) {
+      return;
+    }
+    return user as AdminUser;
+  });
+
+  return !!user;
 }

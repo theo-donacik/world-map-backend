@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { getAdminState, setState } from '../dao/adminState';
 import { getChannels } from '../util/discord';
+import { authenticateToken } from '../util/authToken';
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get('/timer', async (req: any, res: any) => {
 /**
  * @route POST /state/timer
  */
-router.post('/timer', async (req: any, res: any) => {
+router.post('/timer', authenticateToken, async (req: any, res: any) => {
   if(!req.body.timer) {
     res.status(403).send({message: "Missing timer parameter"})
   }
@@ -54,7 +55,7 @@ router.get('/channel', async (req: any, res: any) => {
 /**
  * @route POST /state/channel
  */
-router.post('/channel', async (req: any, res: any) => {
+router.post('/channel', authenticateToken, async (req: any, res: any) => {
   if(!req.body.channelId || !req.body.channelName ) {
     res.status(403).send({message: "Missing id or name parameter"})
   }
@@ -72,7 +73,7 @@ router.post('/channel', async (req: any, res: any) => {
 /**
  * @route GET /state/allChannels
  */
-router.get('/allChannels', async (req: any, res: any) => {
+router.get('/allChannels', authenticateToken, async (req: any, res: any) => {
   const channels = await getChannels();
   
   if (channels) {

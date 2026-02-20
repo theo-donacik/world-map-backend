@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import { addInterestedToken, createArea, editArea, getAllAreas } from '../dao/area';
 import { Area } from '../models/area';
 import { checkToken } from '../dao/anonUser';
+import { authenticateToken } from '../util/authToken';
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.get('/', async (req: any, res: any) => {
 /**
  * @route POST /area
  */
-router.post('/', async (req: any, res: any) => {
+router.post('/', authenticateToken, async (req: any, res: any) => {
   if(!req.body.name || !req.body.description || !req.body.inviteLink) {
     res.status(403).send({message: "Missing area parameters"})
   }
@@ -45,7 +46,7 @@ router.post('/', async (req: any, res: any) => {
 /**
  * @route POST /area/edit
  */
-router.post('/edit', async (req: any, res: any) => {
+router.post('/edit', authenticateToken, async (req: any, res: any) => {
   if(!req.body.id || !req.body.area) {
     res.status(403).send({message: "Missing id or area parameters"})
   }

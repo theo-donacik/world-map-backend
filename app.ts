@@ -7,7 +7,6 @@ import { Client, Events } from "discord.js";
 import loginRouter from './src/pages/login'
 import areaRouter from './src/pages/area'
 import stateRouter from './src/pages/adminState'
-import messageRouter from './src/pages/message'
 
 const token = process.env.DISCORD_TOKEN
 // When the client is ready, run this code (only once).
@@ -29,13 +28,14 @@ const app = express();
 // Middleware
 app.use(cors(
     {
-        origin: 'http://localhost:3000'
+      credentials: true,
+      origin: process.env.FRONTEND_URL || 'http://localhost:3000'
+
     }
 ));
 app.use('/login', loginRouter);
 app.use('/area', areaRouter);
 app.use('/state', stateRouter);
-app.use('/message', messageRouter);
 
 if (process.env.NODE_ENV !== "test") {
     const port = 8000;
