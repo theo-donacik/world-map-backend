@@ -9,6 +9,15 @@ export async function getAllAreas(): Promise<Area[] | undefined> {
   });
 }
 
+export async function getArea(id: string): Promise<Area | undefined> {
+  return await areaModel.findOne({_id: id}).then((area) => {
+    if (area === null) {
+      return;
+    }
+    return area as Area;
+  });
+}
+
 export async function createArea(area: Area): Promise<Area | undefined> {
   const newArea = new areaModel(area)
 
@@ -32,6 +41,18 @@ export async function editArea(id: string, area: Partial<Area>): Promise<Area | 
     return updatedArea;
   });
 }
+
+export async function deleteArea(id: string): Promise<Area | undefined> {
+  return await areaModel.findOneAndDelete(
+    {_id: id}
+  ).then((deletedArea) => {
+    if (deletedArea === null) {
+      return;
+    }
+    return deletedArea;
+  });
+}
+
 
 export async function addInterestedToken(id: string, token: string): Promise<string | undefined> {
   return await areaModel.findOneAndUpdate(

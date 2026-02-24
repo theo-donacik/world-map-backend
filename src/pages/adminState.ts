@@ -83,4 +83,64 @@ router.get('/allChannels', authenticateToken, async (req: any, res: any) => {
   }
 });
 
+/**
+ * @route GET /state/interest
+ */
+router.get('/interest', async (req: any, res: any) => {
+  const state = await getAdminState();
+  
+  if (state) {
+    res.send({ interestNum: state.interestNum });
+  } else {
+    res.status(404).send({ message: 'Count not get interest threshold'});
+  }
+});
+
+/**
+ * @route POST /state/interest
+ */
+router.post('/interest', authenticateToken, async (req: any, res: any) => {
+  if(!req.body.interestNum) {
+    res.status(403).send({message: "Missing interest parameter"})
+  }
+  
+  const newState = await setState({interestNum: req.body.interestNum});
+
+  if (newState) {
+    res.send({interestNum: newState.interestNum});
+  } else {
+    res.status(500).send({ message: 'Failed to save interest threshold'});
+  }
+});
+
+/**
+ * @route GET /state/message
+ */
+router.get('/message', async (req: any, res: any) => {
+  const state = await getAdminState();
+  
+  if (state) {
+    res.send({ alertMessage: state.alertMessage });
+  } else {
+    res.status(404).send({ message: 'Count not get message'});
+  }
+});
+
+/**
+ * @route POST /state/message
+ */
+router.post('/message', authenticateToken, async (req: any, res: any) => {
+  if(!req.body.alertMessage) {
+    res.status(403).send({message: "Missing message parameter"})
+  }
+  
+  const newState = await setState({alertMessage: req.body.alertMessage});
+
+  if (newState) {
+    res.send({alertMessage: newState.alertMessage});
+  } else {
+    res.status(500).send({ message: 'Failed to save message'});
+  }
+});
+
 export default router;

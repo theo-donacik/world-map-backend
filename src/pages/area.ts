@@ -1,9 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { addInterestedToken, createArea, editArea, getAllAreas } from '../dao/area';
+import { addInterestedToken, createArea, deleteArea, editArea, getAllAreas } from '../dao/area';
 import { Area } from '../models/area';
 import { checkToken } from '../dao/anonUser';
 import { authenticateToken } from '../util/authToken';
+import { sendMessage } from '../util/discord';
+import { sendThresholdMessage } from '../dao/adminState';
 
 const router = express.Router();
 
@@ -61,6 +63,23 @@ router.post('/edit', authenticateToken, async (req: any, res: any) => {
 });
 
 /**
+ * @route POST /area/delete
+ */
+router.post('/delete', authenticateToken, async (req: any, res: any) => {
+  if(!req.body.id) {
+    res.status(403).send({message: "Missing id parameter"})
+  }
+  
+  const deleted = await deleteArea(req.body.id);
+
+  if (deleted) {
+    res.send({ area: deleted });
+  } else {
+    res.status(500).send({ message: 'Failed to delete area'});
+  }
+});
+
+/**
  * @route POST /area/interest
  */
 router.post('/interest', async (req: any, res: any) => {
@@ -78,6 +97,7 @@ router.post('/interest', async (req: any, res: any) => {
 
   if (addedToken) {
     res.send({ token: addedToken });
+    sendThresholdMessage(req.body.id)
   } else {
     res.status(500).send({ message: 'Failed to edit area interest'});
   }
