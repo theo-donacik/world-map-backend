@@ -6,6 +6,7 @@ export const areaSchema = new mongoose.Schema(
     description: { type: String, required: true },
     inviteLink: { type: String, required: true },
     interestedUsers: { type: [String], required: true },
+    fileKey: { type: String, required: false },
   },
   { collection: "areas" }
 );
@@ -17,4 +18,5 @@ export interface Area {
   description: string
   inviteLink: string
   interestedUsers: string[]
+  fileKey?: string | null | undefined
 }
