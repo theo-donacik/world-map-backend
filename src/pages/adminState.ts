@@ -26,8 +26,9 @@ router.get('/timer', async (req: any, res: any) => {
  * @route POST /state/timer
  */
 router.post('/timer', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.timer) {
+  if(!req.body || !req.body.timer) {
     res.status(403).send({message: "Missing timer parameter"})
+    return;
   }
   
   const newState = await setState({timer: req.body.timer});
@@ -56,8 +57,9 @@ router.get('/channel', async (req: any, res: any) => {
  * @route POST /state/channel
  */
 router.post('/channel', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.channelId || !req.body.channelName ) {
+  if(!req.body || !req.body.channelId || !req.body.channelName ) {
     res.status(403).send({message: "Missing id or name parameter"})
+    return;
   }
   
   const newState = await setState({dcChannel: {name: req.body.channelName, id: req.body.channelId}});
@@ -100,8 +102,9 @@ router.get('/interest', async (req: any, res: any) => {
  * @route POST /state/interest
  */
 router.post('/interest', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.interestNum) {
+  if(!req.body || !req.body.interestNum) {
     res.status(403).send({message: "Missing interest parameter"})
+    return;
   }
   
   const newState = await setState({interestNum: req.body.interestNum});
@@ -130,8 +133,9 @@ router.get('/message', async (req: any, res: any) => {
  * @route POST /state/message
  */
 router.post('/message', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.alertMessage) {
+  if(!req.body || !req.body.alertMessage) {
     res.status(403).send({message: "Missing message parameter"})
+    return
   }
   
   const newState = await setState({alertMessage: req.body.alertMessage});

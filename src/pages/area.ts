@@ -4,7 +4,6 @@ import { addInterestedToken, createArea, deleteArea, editArea, getAllAreas } fro
 import { Area } from '../models/area';
 import { checkToken } from '../dao/anonUser';
 import { authenticateToken } from '../util/authToken';
-import { sendMessage } from '../util/discord';
 import { sendThresholdMessage } from '../dao/adminState';
 
 const router = express.Router();
@@ -29,8 +28,9 @@ router.get('/', async (req: any, res: any) => {
  * @route POST /area
  */
 router.post('/', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.name || !req.body.description || !req.body.inviteLink) {
+  if(!req.body || !req.body.name || !req.body.description || !req.body.inviteLink) {
     res.status(403).send({message: "Missing area parameters"})
+    return;
   }
   
   const area = req.body as Area
@@ -49,8 +49,9 @@ router.post('/', authenticateToken, async (req: any, res: any) => {
  * @route POST /area/edit
  */
 router.post('/edit', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.id || !req.body.area) {
+  if(!req.body || !req.body.id || !req.body.area) {
     res.status(403).send({message: "Missing id or area parameters"})
+    return;
   }
   
   const editedArea = await editArea(req.body.id, req.body.area as Partial<Area>);
@@ -66,8 +67,9 @@ router.post('/edit', authenticateToken, async (req: any, res: any) => {
  * @route POST /area/delete
  */
 router.post('/delete', authenticateToken, async (req: any, res: any) => {
-  if(!req.body.id) {
+  if(!req.body || !req.body.id) {
     res.status(403).send({message: "Missing id parameter"})
+    return;
   }
   
   const deleted = await deleteArea(req.body.id);
@@ -83,14 +85,16 @@ router.post('/delete', authenticateToken, async (req: any, res: any) => {
  * @route POST /area/interest
  */
 router.post('/interest', async (req: any, res: any) => {
-  if(!req.body.id || !req.body.token) {
+  if(!req.body || !req.body.id || !req.body.token) {
     res.status(403).send({message: "Missing id or token parameters"})
+    return;
   }
 
   const validToken = await checkToken(req.body.token)
 
   if(!validToken) {
     res.status(403).send({message: "Invalid token"})
+    return;
   }
   
   const addedToken = await addInterestedToken(req.body.id, req.body.token);
@@ -100,6 +104,7 @@ router.post('/interest', async (req: any, res: any) => {
     sendThresholdMessage(req.body.id)
   } else {
     res.status(500).send({ message: 'Failed to edit area interest'});
+    return;
   }
 });
 

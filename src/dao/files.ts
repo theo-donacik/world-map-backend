@@ -1,12 +1,11 @@
 import S3 from 'aws-sdk/clients/s3.js'; 
 import { PutObjectOutput, PutObjectRequest, GetObjectRequest, GetObjectOutput } from 'aws-sdk/clients/s3';
 import {AWSError} from 'aws-sdk/lib/error';
-import { buffer } from 'node:stream/consumers';
 
-export async function Upload(bucket: string, file: Express.Multer.File, objectName: string): Promise<string> {
+export async function uploadFile(file: Express.Multer.File, objectName: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const s3: S3 = Connect();
-        const params: PutObjectRequest = { Bucket: bucket, Key: objectName, Body: file.buffer, ACL: 'public-read', ContentType: file.mimetype };
+        const params: PutObjectRequest = { Bucket: process.env.S3_BUCKET_NAME || "", Key: objectName, Body: file.buffer, ACL: 'public-read', ContentType: file.mimetype };
         s3.putObject(params, (err: AWSError, data: PutObjectOutput) => {
             if (err) reject(err);
             resolve(objectName);
@@ -14,10 +13,10 @@ export async function Upload(bucket: string, file: Express.Multer.File, objectNa
     });
 }
 
-export async function GetToStream(bucket: string, objectName: string, buffer: any): Promise<string> {
+export async function getFileToBuffer(objectName: string, buffer: any): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const s3: S3 = Connect();
-        const params: GetObjectRequest = { Bucket: bucket, Key: objectName};
+        const params: GetObjectRequest = { Bucket: process.env.S3_BUCKET_NAME || "", Key: objectName};
 
         const data = s3.getObject(params)
         data.createReadStream()
@@ -31,26 +30,13 @@ export async function GetToStream(bucket: string, objectName: string, buffer: an
     });
 }
 
-export async function GetAsBuffer(bucket: string, objectName: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-        const s3: S3 = Connect();
-        const params: GetObjectRequest = { Bucket: bucket, Key: objectName};
+export async function getFileAsBuffer(objectName: string): Promise<Buffer | undefined> {
+  const s3: S3 = Connect();
+  const params: GetObjectRequest = { Bucket: process.env.S3_BUCKET_NAME || "", Key: objectName};
 
-        const data = s3.getObject(params)
+  const data = await s3.getObject(params).promise()
 
-        const chunks: Buffer[] = []
-        data.createReadStream()
-        .on('error', (e) => {
-          reject(e)
-        })
-        .on('data', (d: Buffer) => {
-            chunks.push(d)
-        })
-
-        const buf = Buffer.concat(chunks)
-
-        return buf
-    });
+  return (data.Body?.valueOf() as Buffer)
 }
 
 

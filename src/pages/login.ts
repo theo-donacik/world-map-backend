@@ -14,8 +14,9 @@ router.use(express.json());
  * @route POST /login
  */
 router.post('/', async (req: any, res: any) => {
-  if(!req.body.username || !req.body.password) {
+  if(!req.body || !req.body.username || !req.body.password) {
     res.status(403).send({message: "No username or password specified"})
+    return;
   }
 
   const { username, password } = req.body as AdminUser;
@@ -47,9 +48,11 @@ router.post('/anon', async (req: any, res: any) => {
  * @route POST /login/validate
  */
 router.post('/validate', async (req: any, res: any) => {
-  if(!req.body.token ) {
+  if(!req.body || !req.body.token ) {
     res.status(403).send({message: "No token specified"})
+    return;
   }
+
   await checkToken(req.body.token).then((isValid: boolean) => {
     if(isValid) {
       res.send(req.body);
@@ -64,8 +67,9 @@ router.post('/validate', async (req: any, res: any) => {
  * @route POST /login/validateAdmin
  */
 router.post('/validateAdmin', async (req: any, res: any) => {
-  if(!req.body.token) {
+  if(!req.body || !req.body.token) {
     res.status(403).send({message: "No token specified"})
+    return;
   }
   await checkAdminToken(req.body.token).then((isValid: boolean) => {
     if(isValid) {
