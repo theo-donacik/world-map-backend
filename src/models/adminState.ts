@@ -6,7 +6,8 @@ export const adminStateSchema = new mongoose.Schema(
     timer: { type: Date, required: true },
     dcChannel: { type: Object, required: true },
     interestNum: { type: Number, required: true },
-    alertMessage: { type: String, required: true }
+    alertMessage: { type: String, required: true },
+    defaultWorldRegion: { type: String, required: true },
   },
   { collection: "adminState" }
 );
@@ -17,5 +18,6 @@ export interface AdminState {
   timer: Date,
   dcChannel: DCChannel,
   interestNum: number,
-  alertMessage: string
+  alertMessage: string,
+  defaultWorldRegion: string
 }
