@@ -20,6 +20,30 @@ export async function createRegion(region: Region):  Promise<string | undefined>
   });
 }
 
+export async function deleteRegion(id: string): Promise<string | undefined> {
+  return await regionModel.findOneAndDelete(
+    {_id: id}
+  ).then((deletedRegion) => {
+    if (deletedRegion === null) {
+      return;
+    }
+    return deletedRegion._id.toString();
+  });
+}
+
+export async function editRegion(id: string, region: Partial<Region>):  Promise<Region | undefined> {
+  return await regionModel.findOneAndUpdate(
+    {_id: id},
+    {$set: region},
+    {returnDocument: 'after'}
+  ).then((updatedRegion) => {
+    if (updatedRegion === null) {
+      return;
+    }
+    return updatedRegion;
+  });
+}
+
 export async function getRegion(regionId: string):  Promise<Region | undefined> {
   return await regionModel.findOne({_id: regionId}).then((region) => {
     if (region === null) {

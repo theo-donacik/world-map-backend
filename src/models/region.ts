@@ -6,7 +6,9 @@ export const regionSchema = new mongoose.Schema(
     description: { type: String, required: true },
     interestedUsers: { type: [String], required: true },
     parentId: { type: String, required: true },
+    colorMapColor: { type: String, required: true },
     subregionImg: { type: String, required: false },
+    colorMapImg: { type: String, required: false },
     subregionWidth: { type: Number, required: false },
     subregionHeight: { type: Number, required: false },
     vertices: { type: [Number], required: true }
@@ -21,7 +23,9 @@ export interface Region {
   description: string
   parentId: string
   interestedUsers: string[]
+  colorMapColor: string
   subregionImg?: string | null | undefined
+  colorMapImg?: string | null | undefined
   subregionWidth?: number | null | undefined
   subregionHeight?: number | null | undefined
   vertices: number[]
@@ -34,6 +38,7 @@ export interface CreatedRegions {
         name: string;
         description: string;
         vertices: number[];
+        color: string
     }[];
 }
 
