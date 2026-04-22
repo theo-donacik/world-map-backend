@@ -12,7 +12,7 @@ services:
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
       DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET}
       FRONTEND_URL: https://holomap.frii.site
-      BACKEND_URL: http://localhost:8000
+      BACKEND_URL: https://map-api.mooo.com
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}    
       S3_SECRET_KEY: ${S3_SECRET_KEY}  
       S3_DEFAULT_REGION: garage
