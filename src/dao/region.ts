@@ -61,3 +61,16 @@ export async function getSubregionsOf(parentId: string):  Promise<Region[] | und
     return regions as Region[];
   });
 }
+
+export async function addInterestedToken(id: string, token: string): Promise<string | undefined> {
+  return await regionModel.findOneAndUpdate(
+    {_id: id},
+    {$push: { interestedUsers: token }},
+    {returnDocument: 'after'}
+  ).then((updatedRegion) => {
+    if (updatedRegion === null) {
+      return;
+    }
+    return token;
+  });
+}

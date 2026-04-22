@@ -1,8 +1,9 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { authenticateToken } from '../util/authToken';
-import { createAllRegionData, createRegion, deleteRegion, editRegion, getRegion, getSubregionsOf } from '../dao/region';
+import { addInterestedToken, createAllRegionData, createRegion, deleteRegion, editRegion, getRegion, getSubregionsOf } from '../dao/region';
 import { CreatedRegions, Region } from '../models/region';
+import { checkUserToken } from '../dao/discordUser';
 
 
 const router = express.Router();
@@ -161,6 +162,33 @@ router.post('/delete', authenticateToken, async (req: any, res: any) => {
   } else {
     res.status(500).send({ message: 'Failed to delete region'});
   }
+});
+
+/**
+ * @route POST /region/interest
+ */
+router.post('/interest', async (req: any, res: any) => {
+  if(!req.body || !req.body.id || !req.body.token) {
+    res.status(403).send({message: "Missing id or token parameter"})
+    return;
+  }
+
+  if (await checkUserToken(req.body.token)) {
+    const addedToken = await addInterestedToken(req.body.id, req.body.token);
+    
+    if (addedToken) {
+      res.send({ token: addedToken });
+      //sendThresholdMessage(req.body.id)
+    } else {
+      res.status(500).send({ message: 'Failed to edit region interest'});
+      return;
+    }
+  }
+  else {
+    res.status(401).send({ message: 'Invalid token'});
+    return;
+  }
+
 });
 
 export default router;
