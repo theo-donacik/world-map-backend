@@ -10,7 +10,7 @@ services:
       DB_CONNECTION_STRING: mongodb://mongo:27017/map
       DISCORD_TOKEN: ${DISCORD_TOKEN}
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
-      DISCORD_CLIENT_SECRET: ${DISCORD_SECRET}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET}
       FRONTEND_URL: https://holomap.frii.site
       BACKEND_URL: http://localhost:8000
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}    
