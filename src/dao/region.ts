@@ -2,11 +2,17 @@ import { CreatedRegions, Region, regionModel } from "../models/region";
 import { createRegions } from "../util/createRegion";
 import { getFileAsBuffer } from "./files";
 
-export async function createAllRegionData(colorMapName: string, dataCSVName: string): Promise<CreatedRegions> {
+export async function createAllRegionData(colorMapName: string, dataCSVName: string): Promise<CreatedRegions | undefined> {
   const colorMap = await getFileAsBuffer(colorMapName)
   const dataCSV = await getFileAsBuffer(dataCSVName)
 
-  return (await createRegions(colorMap, dataCSV) as CreatedRegions)
+  try {
+    return (await createRegions(colorMap, dataCSV) as CreatedRegions)
+  }
+  catch (e){
+    console.log(e)
+    return
+  }
 }
 
 export async function createRegion(region: Region):  Promise<string | undefined> {

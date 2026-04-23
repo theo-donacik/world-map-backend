@@ -20,11 +20,19 @@ router.post('/create', authenticateToken, async (req: any, res: any) => {
     return;
   }
 
-  const allRegionData : CreatedRegions = await createAllRegionData(req.body.colorMapName, req.body.dataCSVName)
+  const allRegionData = await createAllRegionData(req.body.colorMapName, req.body.dataCSVName)
+
+  if(!allRegionData) {
+    res.status(500).send({ message: 'Failed to generate regions (bad csv?)'}); 
+    return
+  }
 
   const worldRegion: Region = {
     name: "X",
     description: "X",
+    mission: "X",
+    level: "X",
+    reward: "X",
     interestedUsers: [],
     parentId: "0",
     colorMapColor: "255, 255, 255",
@@ -44,6 +52,9 @@ router.post('/create', authenticateToken, async (req: any, res: any) => {
       const region: Region = {
         name: regionData.name,
         description: regionData.description,
+        mission: regionData.mission,
+        level: regionData.level,
+        reward: regionData.reward,
         interestedUsers: [],
         colorMapColor: regionData.color,
         parentId: worldRegionId ?? "0",
@@ -74,7 +85,12 @@ router.post('/create/:parentId', authenticateToken, async (req: any, res: any) =
     return;
   }
 
-  const allRegionData : CreatedRegions = await createAllRegionData(req.body.colorMapName, req.body.dataCSVName)
+  const allRegionData = await createAllRegionData(req.body.colorMapName, req.body.dataCSVName)
+
+  if(!allRegionData) {
+    res.status(500).send({ message: 'Failed to generate regions (bad csv?)'}); 
+    return
+  }
 
   var subregions = []
   for(var i in allRegionData.regions) {
@@ -83,6 +99,9 @@ router.post('/create/:parentId', authenticateToken, async (req: any, res: any) =
     const region: Region = {
       name: regionData.name,
       description: regionData.description,
+      mission: regionData.mission,
+      level: regionData.level,
+      reward: regionData.reward,
       interestedUsers: [],
       colorMapColor: regionData.color,
       parentId: req.params.parentId,

@@ -92,13 +92,19 @@ async function mapColorToRegion(keys, regionPolygons, data) {
     const rgb = nearest
     const name = data[i][1]
     const description = data[i][2]
+    const mission = data[i][3]
+    const level = data[i][4]
+    const reward = data[i][5]
     const vert = regionPolygons[nearest]
 
     regionData.push({
       "name": name,
       "description": description,
       "vertices": vert,
-      "color": rgb
+      "color": rgb,
+      "mission": mission,
+      "level": level,
+      "reward": reward
     })
     
   }

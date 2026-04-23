@@ -9,8 +9,6 @@ import filesRouter from './src/pages/files'
 import regionRouter from './src/pages/region'
 import discordAuthRouter from './src/pages/discordLogin'
 
-var cookieParser = require('cookie-parser')
-
 const token = process.env.DISCORD_TOKEN
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
@@ -32,11 +30,9 @@ const app = express();
 app.use(cors(
     {
       credentials: true,
-      origin: process.env.FRONTEND_URL || 'http://localhost:3000'
+      origin: process.env.FRONTEND_URL || '*'
     }
 ));
-
-app.use(cookieParser())
 
 app.use('/state', stateRouter);
 app.use('/files', filesRouter);
