@@ -1,4 +1,4 @@
-import { checkAdminToken } from "../dao/adminUser";
+import { checkAdminToken } from "../dao/discordUser";
 
 export async function authenticateToken(req: any, res: any, next: any) {
   const authHeader = req.headers['authorization'];

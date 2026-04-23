@@ -4,8 +4,6 @@ import mongoose from "mongoose";
 import client from "./src/util/discord";
 import { Client, Events } from "discord.js";
 
-import loginRouter from './src/pages/login'
-import areaRouter from './src/pages/area'
 import stateRouter from './src/pages/adminState'
 import filesRouter from './src/pages/files'
 import regionRouter from './src/pages/region'
@@ -40,8 +38,6 @@ app.use(cors(
 
 app.use(cookieParser())
 
-app.use('/login', loginRouter);
-app.use('/area', areaRouter);
 app.use('/state', stateRouter);
 app.use('/files', filesRouter);
 app.use('/region', regionRouter);

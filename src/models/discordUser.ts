@@ -4,6 +4,7 @@ export const discordUserSchema = new mongoose.Schema(
   {
     token: { type: String, required: true, unique: true },
     data: { type: Object, required: true },
+    admin: { type: Boolean, required: true },
   },
   { collection: "discordUser" }
 );
@@ -12,7 +13,8 @@ export const discordUserModel = mongoose.model("DiscordUserModel", discordUserSc
 
 export interface DiscordUser {
   token: string,
-  data: DiscordUserData
+  data: DiscordUserData,
+  admin: boolean
 }
 
 export interface DiscordSession {

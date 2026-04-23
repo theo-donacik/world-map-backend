@@ -1,7 +1,7 @@
 import express from 'express';
 import {request} from 'undici';
 import bodyParser from 'body-parser';
-import { checkUserToken, createDCUser } from '../dao/discordUser';
+import { checkAdminToken, checkUserToken, createDCUser } from '../dao/discordUser';
 import { DiscordSession, DiscordUserData } from '../models/discordUser';
 import { randomUUID } from 'node:crypto';
 import handoffStore from '../util/handoffStore';
@@ -113,5 +113,24 @@ router.post('/validate', async (req: any, res: any) => {
     }
   })
 });
+
+/**
+ * @route POST /discord/validateAdmin
+ */
+router.post('/validateAdmin', async (req: any, res: any) => {
+  if(!req.body || !req.body.token) {
+    res.status(403).send({message: "No token specified"})
+    return;
+  }
+  await checkAdminToken(req.body.token).then((isValid: boolean) => {
+    if(isValid) {
+      res.send(req.body);
+    }
+    else {
+      res.status(403).send({message: "Invalid admin token"})
+    }
+  })
+});
+
 
 export default router;

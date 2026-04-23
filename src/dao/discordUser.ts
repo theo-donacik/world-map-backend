@@ -9,7 +9,7 @@ export async function createDCUser(userData: DiscordUserData): Promise<DiscordUs
   }
   
   const token = uuidv4();
-  const newUser = new discordUserModel({token: token, data: userData})
+  const newUser = new discordUserModel({token: token, admin: false, data: userData})
   
   return await newUser.save().then((user) => {
     if (user === null) {
@@ -38,4 +38,13 @@ export async function checkUserToken(token: string) {
   });
 
   return !!user;
+}
+
+export async function checkAdminToken(token: string): Promise<boolean> {
+  return await discordUserModel.findOne({ token: token }).then((user) => {
+    if (user === null) {
+      return false;
+    }
+    return user.admin
+  });
 }
