@@ -2,9 +2,10 @@ import express from 'express';
 import {request} from 'undici';
 import bodyParser from 'body-parser';
 import { checkAdminToken, checkUserToken, createDCUser } from '../dao/discordUser';
-import { DiscordSession, DiscordUserData } from '../models/discordUser';
+import { DiscordSession } from '../models/discordUser';
 import { randomUUID } from 'node:crypto';
 import handoffStore from '../util/handoffStore';
+import { User } from 'discord.js';
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ function isOauthSuccess(obj: any): obj is DiscordSession {
   return obj?.token_type && obj?.access_token && obj?.expires_in && obj?.refresh_token && obj?.scope;
 }
 
-function isUserData(obj: any): obj is DiscordUserData {
+function isUserData(obj: any): obj is User {
   return obj?.id && obj?.username && obj?.global_name;
 }
 
@@ -69,6 +70,7 @@ router.get('/callback', async (req: any, res: any) => {
             return res.redirect(`${FRONTEND_URL}/#/oauth?code=${handoffCode}`)      
           }
         }
+        
       }
 
       return res.redirect(`${FRONTEND_URL}/#/oauth`)      

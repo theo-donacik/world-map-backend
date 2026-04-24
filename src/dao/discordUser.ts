@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { DiscordUser, DiscordUserData, discordUserModel } from "../models/discordUser";
+import { DiscordUser, discordUserModel } from "../models/discordUser";
+import { User } from 'discord.js';
 
-export async function createDCUser(userData: DiscordUserData): Promise<DiscordUser | undefined> {
-  const matchingUser = await getDCUser(userData.id)
+export async function createDCUser(userData: User): Promise<DiscordUser | undefined> {
+  const matchingUser = await getDCUserByDCId(userData.id)
 
   if(matchingUser) {
     return matchingUser;
@@ -19,8 +20,17 @@ export async function createDCUser(userData: DiscordUserData): Promise<DiscordUs
   });
 }
 
-export async function getDCUser(dc_id: string): Promise<DiscordUser | undefined> {
+export async function getDCUserByDCId(dc_id: string): Promise<DiscordUser | undefined> {
   return await discordUserModel.findOne({"data.id": dc_id}).then((user) => {
+    if (user === null) {
+      return;
+    }
+    return user as DiscordUser;
+  });
+}
+
+export async function getDCUser(token: string): Promise<DiscordUser | undefined> {
+  return await discordUserModel.findOne({token: token}).then((user) => {
     if (user === null) {
       return;
     }
@@ -30,12 +40,7 @@ export async function getDCUser(dc_id: string): Promise<DiscordUser | undefined>
 
 
 export async function checkUserToken(token: string) {
-  const user = await discordUserModel.findOne({ token: token }).then((user) => {
-    if (user === null) {
-      return;
-    }
-    return user as DiscordUser;
-  });
+  const user = await getDCUser(token)
 
   return !!user;
 }

@@ -2,8 +2,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { authenticateToken } from '../util/authToken';
 import { addInterestedToken, createAllRegionData, createRegion, deleteRegion, editRegion, getRegion, getSubregionsOf } from '../dao/region';
-import { CreatedRegions, Region } from '../models/region';
+import { Region } from '../models/region';
 import { checkUserToken } from '../dao/discordUser';
+import { getAdminState, initializeInterestThread, sendNewUserInterestMessage } from '../dao/adminState';
+import { findInterestThread, sendMessage } from '../util/discord';
 
 
 const router = express.Router();
@@ -197,7 +199,22 @@ router.post('/interest', async (req: any, res: any) => {
     
     if (addedToken) {
       res.send({ token: addedToken });
-      //sendThresholdMessage(req.body.id)
+
+      getAdminState().then((state) => {
+        getRegion(req.body.id).then(async (region) => {
+          if(state && region && region.interestedUsers.length >= state.interestNum) {
+            findInterestThread(state.dcChannel.id, region.mission).then((threadId) => {
+              if(threadId) {
+                sendNewUserInterestMessage(threadId, req.body.token)
+              }
+              else {
+                initializeInterestThread(region, state.alertMessage, state.dcChannel.id)
+              }
+            })
+          }
+        })
+      })
+
     } else {
       res.status(500).send({ message: 'Failed to edit region interest'});
       return;
@@ -207,7 +224,6 @@ router.post('/interest', async (req: any, res: any) => {
     res.status(401).send({ message: 'Invalid token'});
     return;
   }
-
 });
 
 export default router;

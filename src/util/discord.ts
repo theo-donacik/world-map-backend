@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, TextChannel } from "discord.js";
+import { Client, ForumChannel, GatewayIntentBits, TextChannel, ThreadChannel } from "discord.js";
 require('dotenv').config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages]});
@@ -14,8 +14,8 @@ export async function getChannels(): Promise<DCChannel[]> {
 
     const channels = client.channels.cache
     channels.forEach(channel => {
-      if(channel.isTextBased()) {
-        const name = (channel as TextChannel).name + (channel.isVoiceBased() ? " [Voice]" : "")
+      if(channel.isThreadOnly()) {
+        const name = (channel as ForumChannel).name
         c.push({name: name, id: channel.id})
       }
     });
@@ -34,8 +34,8 @@ export async function getChannels(): Promise<DCChannel[]> {
 export async function sendMessage(id: string, message: string): Promise<string | null> {
   if(client.isReady()) {
     const channel = client.channels.cache.get(id)
-    if(channel && channel.isTextBased()) {
-      (channel as TextChannel).send(message)
+    if(channel && channel.isThread()) {
+      (channel as ThreadChannel).send(message)
       return message
     }
     else {
@@ -46,6 +46,55 @@ export async function sendMessage(id: string, message: string): Promise<string |
     return new Promise(resolve => {
       client.on('clientReady', () => {
         resolve(sendMessage(id, message))
+      }) 
+    })
+  }
+}
+
+
+export async function findInterestThread(channelId: string, threadName: string): Promise<string | false>  {
+  if(client.isReady()) {
+    const channel = client.channels.cache.get(channelId)
+
+    if(channel && channel.isThreadOnly()) {
+      const thread = (channel as ForumChannel).threads.cache.find((x) => x.name === threadName);
+      if (thread) {
+        return new Promise(resolve => resolve(thread.id))
+      }
+    }
+    return new Promise(resolve => resolve(false))
+  }
+
+  else {
+    return new Promise(resolve => {
+      client.on('clientReady', () => {
+        resolve(findInterestThread(channelId, threadName))
+      }) 
+    })
+  }
+}
+
+export async function createInterestThread(channelId: string, threadName: string, initialMessage: string): Promise<string | false> {
+  if(client.isReady()) {
+    const channel = client.channels.cache.get(channelId)
+
+    if(await findInterestThread(channelId, threadName)) {
+      return false
+    }
+    else {
+      const thread = await (channel as ForumChannel).threads.create({
+        name: threadName,
+        message: {
+          content: initialMessage
+        },
+      });
+      return thread.id
+    }
+  }
+  else {
+    return new Promise(resolve => {
+      client.on('clientReady', () => {
+        resolve(createInterestThread(channelId, threadName, initialMessage))
       }) 
     })
   }

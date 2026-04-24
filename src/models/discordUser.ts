@@ -1,3 +1,4 @@
+import { User } from "discord.js";
 import mongoose from "mongoose";
 
 export const discordUserSchema = new mongoose.Schema(
@@ -13,7 +14,7 @@ export const discordUserModel = mongoose.model("DiscordUserModel", discordUserSc
 
 export interface DiscordUser {
   token: string,
-  data: DiscordUserData,
+  data: User,
   admin: boolean
 }
 
@@ -23,10 +24,4 @@ export interface DiscordSession {
   expires_in: number,
   refresh_token: string,
   scope: string
-}
-
-export interface DiscordUserData {
-  id: string,
-  username: string,
-  global_name: string,
 }
