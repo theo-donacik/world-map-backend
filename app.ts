@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import client from "./src/util/discord";
 import { Client, Events } from "discord.js";
 
-import stateRouter from './src/pages/adminState'
+import stateRouter from './src/pages/adminState/adminState'
 import filesRouter from './src/pages/files'
 import regionRouter from './src/pages/region'
 import discordAuthRouter from './src/pages/discordLogin'

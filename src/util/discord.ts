@@ -8,7 +8,30 @@ export interface DCChannel {
   name: string
 }
 
-export async function getChannels(): Promise<DCChannel[]> {
+export async function getTextChannels(): Promise<DCChannel[]> {
+  if(client.isReady()) {
+    const c: DCChannel[] = []
+
+    const channels = client.channels.cache
+    channels.forEach(channel => {
+      if(channel.isTextBased()) {
+        const name = (channel as TextChannel).name + (channel.isVoiceBased() ? " [Voice]" : "")
+        c.push({name: name, id: channel.id})
+      }
+    });
+
+    return c
+  }
+  else {
+    return new Promise(resolve => {
+      client.on('clientReady', () => {
+        resolve(getTextChannels())
+      }) 
+    })
+  }
+}
+
+export async function getThreadChannels(): Promise<DCChannel[]> {
   if(client.isReady()) {
     const c: DCChannel[] = []
 
@@ -25,7 +48,7 @@ export async function getChannels(): Promise<DCChannel[]> {
   else {
     return new Promise(resolve => {
       client.on('clientReady', () => {
-        resolve(getChannels())
+        resolve(getTextChannels())
       }) 
     })
   }
@@ -34,7 +57,7 @@ export async function getChannels(): Promise<DCChannel[]> {
 export async function sendMessage(id: string, message: string): Promise<string | null> {
   if(client.isReady()) {
     const channel = client.channels.cache.get(id)
-    if(channel && channel.isThread()) {
+    if(channel && (channel.isThread() || channel.isTextBased())) {
       (channel as ThreadChannel).send(message)
       return message
     }

@@ -203,12 +203,12 @@ router.post('/interest', async (req: any, res: any) => {
       getAdminState().then((state) => {
         getRegion(req.body.id).then(async (region) => {
           if(state && region && region.interestedUsers.length >= state.interestNum) {
-            findInterestThread(state.dcChannel.id, region.mission).then((threadId) => {
+            findInterestThread(state.organizeChannel.id, region.mission).then((threadId) => {
               if(threadId) {
                 sendNewUserInterestMessage(threadId, req.body.token)
               }
               else {
-                initializeInterestThread(region, state.alertMessage, state.dcChannel.id)
+                initializeInterestThread(region, state.alertMessage, state.organizeChannel.id)
               }
             })
           }
@@ -224,6 +224,53 @@ router.post('/interest', async (req: any, res: any) => {
     res.status(401).send({ message: 'Invalid token'});
     return;
   }
+});
+
+/**
+ * @route POST /region/failure
+ */
+router.post('/failure', authenticateToken, async (req: any, res: any) => {
+  if(!req.body || !req.body.id) {
+    res.status(403).send({message: "Missing id parameter"})
+    return;
+  }
+  
+  const region = await getRegion(req.body.id)
+  const state = await getAdminState()
+
+  if (region && state) {
+    const status = await sendMessage(state.updatesChannel.id, `${region.mission} failed! You can try again in TIME`)
+    if(status) {
+      res.send({message: "ok"})
+      return
+    }
+  }
+    
+  res.status(500).send({ message: 'Failed to update region status'});
+  
+});
+
+/**
+ * @route POST /region/success
+ */
+router.post('/success', authenticateToken, async (req: any, res: any) => {
+  if(!req.body || !req.body.id) {
+    res.status(403).send({message: "Missing id parameter"})
+    return;
+  }
+  
+  const region = await getRegion(req.body.id)
+  const state = await getAdminState()
+
+  if (region && state) {
+    const status = await sendMessage(state.updatesChannel.id, `${region.mission} succeeded! You can try again in TIME`)
+    if(status) {
+      res.send({message: "ok"})
+      return
+    }
+  }
+    
+  res.status(500).send({ message: 'Failed to update region status'});
 });
 
 export default router;
