@@ -14,7 +14,8 @@ export const regionSchema = new mongoose.Schema(
     colorMapImg: { type: String, required: false },
     subregionWidth: { type: Number, required: false },
     subregionHeight: { type: Number, required: false },
-    vertices: { type: [Number], required: true }
+    vertices: { type: [Number], required: true },
+    cooldown: { type: Date, required: true }
   },
   { collection: "regions" }
 );
@@ -34,7 +35,8 @@ export interface Region {
   colorMapImg?: string | null | undefined
   subregionWidth?: number | null | undefined
   subregionHeight?: number | null | undefined
-  vertices: number[]
+  vertices: number[],
+  cooldown: Date
 }
 
 export interface CreatedRegions {

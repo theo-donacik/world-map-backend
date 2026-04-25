@@ -8,6 +8,7 @@ import stateRouter from './src/pages/adminState/adminState'
 import filesRouter from './src/pages/files'
 import regionRouter from './src/pages/region'
 import discordAuthRouter from './src/pages/discordLogin'
+import { scheduleAllCooldowns } from "./src/dao/region";
 
 const token = process.env.DISCORD_TOKEN
 // When the client is ready, run this code (only once).
@@ -38,6 +39,8 @@ app.use('/state', stateRouter);
 app.use('/files', filesRouter);
 app.use('/region', regionRouter);
 app.use('/discord', discordAuthRouter);
+
+scheduleAllCooldowns()
 
 if (process.env.NODE_ENV !== "test") {
     const port = 8000;

@@ -1,5 +1,7 @@
 import { CreatedRegions, Region, regionModel } from "../models/region";
 import { createRegions } from "../util/createRegion";
+import { sendMessage } from "../util/discord";
+import { getAdminState } from "./adminState";
 import { getFileAsBuffer } from "./files";
 
 export async function createAllRegionData(colorMapName: string, dataCSVName: string): Promise<CreatedRegions | undefined> {
@@ -79,4 +81,36 @@ export async function addInterestedToken(id: string, token: string): Promise<str
     }
     return token;
   });
+}
+
+export async function scheduleCooldown(id: string, region: Region) {
+  const delay = Math.max(0, region.cooldown.getTime() - Date.now());
+
+  setTimeout(async () => {
+    editRegion(id, {interestedUsers: []}).then((editedRegion) => {
+
+      if(editedRegion) {
+        if(new Date().getTime() < new Date(editedRegion.cooldown).getTime()) {
+          // Cooldown has been edited, do not trigger yet
+          return
+        }
+
+        getAdminState().then((state) => {
+          if(state) {
+            sendMessage(state.updatesChannel.id, `${editedRegion.mission} is available again!`)
+          }
+        })
+      }
+    })
+  }, delay)
+}
+
+export async function scheduleAllCooldowns() {
+  const regions = await regionModel.find();
+
+  for(var i in regions) {
+    if(new Date().getTime() < new Date(regions[i].cooldown).getTime()) {
+      scheduleCooldown(regions[i]._id.toString(), regions[i])
+    }
+  }
 }

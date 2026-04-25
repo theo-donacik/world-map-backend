@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { authenticateToken } from '../util/authToken';
-import { addInterestedToken, createAllRegionData, createRegion, deleteRegion, editRegion, getRegion, getSubregionsOf } from '../dao/region';
+import { addInterestedToken, createAllRegionData, createRegion, deleteRegion, editRegion, getRegion, getSubregionsOf, scheduleCooldown } from '../dao/region';
 import { Region } from '../models/region';
 import { checkUserToken } from '../dao/discordUser';
 import { getAdminState, initializeInterestThread, sendNewUserInterestMessage } from '../dao/adminState';
@@ -36,6 +36,7 @@ router.post('/create', authenticateToken, async (req: any, res: any) => {
     level: "X",
     reward: "X",
     interestedUsers: [],
+    cooldown: new Date(),
     parentId: "0",
     colorMapColor: "255, 255, 255",
     colorMapImg: req.body.colorMapName,
@@ -57,6 +58,7 @@ router.post('/create', authenticateToken, async (req: any, res: any) => {
         mission: regionData.mission,
         level: regionData.level,
         reward: regionData.reward,
+        cooldown: new Date,
         interestedUsers: [],
         colorMapColor: regionData.color,
         parentId: worldRegionId ?? "0",
@@ -104,6 +106,7 @@ router.post('/create/:parentId', authenticateToken, async (req: any, res: any) =
       mission: regionData.mission,
       level: regionData.level,
       reward: regionData.reward,
+      cooldown: new Date(),
       interestedUsers: [],
       colorMapColor: regionData.color,
       parentId: req.params.parentId,
@@ -161,6 +164,10 @@ router.post('/edit', authenticateToken, async (req: any, res: any) => {
   const editedRegion = await editRegion(req.body.id, req.body.region as Partial<Region>);
 
   if (editedRegion) {
+    if(new Date().getTime() < new Date(editedRegion.cooldown).getTime()) {
+      scheduleCooldown(req.body.id, editedRegion);
+    }
+
     res.send({ region: editedRegion });
   } else {
     res.status(500).send({ message: 'Failed to save region'});
@@ -226,6 +233,10 @@ router.post('/interest', async (req: any, res: any) => {
   }
 });
 
+function getDaysFrom(date: Date) {
+  return Math.ceil((date.getTime() - new Date().getTime())/ (1000 * 60 * 60 * 24)) 
+}
+
 /**
  * @route POST /region/failure
  */
@@ -239,7 +250,7 @@ router.post('/failure', authenticateToken, async (req: any, res: any) => {
   const state = await getAdminState()
 
   if (region && state) {
-    const status = await sendMessage(state.updatesChannel.id, `${region.mission} failed! You can try again in TIME`)
+    const status = await sendMessage(state.updatesChannel.id, `${region.mission} failed! You can try again in ${getDaysFrom(region.cooldown)} days`)
     if(status) {
       res.send({message: "ok"})
       return
@@ -247,7 +258,6 @@ router.post('/failure', authenticateToken, async (req: any, res: any) => {
   }
     
   res.status(500).send({ message: 'Failed to update region status'});
-  
 });
 
 /**
@@ -263,7 +273,7 @@ router.post('/success', authenticateToken, async (req: any, res: any) => {
   const state = await getAdminState()
 
   if (region && state) {
-    const status = await sendMessage(state.updatesChannel.id, `${region.mission} succeeded! You can try again in TIME`)
+    const status = await sendMessage(state.updatesChannel.id, `${region.mission} succeeded! You can try again in ${getDaysFrom(region.cooldown)} days`)
     if(status) {
       res.send({message: "ok"})
       return
