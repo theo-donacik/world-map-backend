@@ -9,6 +9,7 @@ import filesRouter from './src/pages/files'
 import regionRouter from './src/pages/region'
 import discordAuthRouter from './src/pages/discordLogin'
 import { scheduleAllCooldowns } from "./src/dao/region";
+import { scheduleWorldTimerAlerts } from "./src/dao/adminState";
 
 const token = process.env.DISCORD_TOKEN
 // When the client is ready, run this code (only once).
@@ -41,6 +42,7 @@ app.use('/region', regionRouter);
 app.use('/discord', discordAuthRouter);
 
 scheduleAllCooldowns()
+scheduleWorldTimerAlerts()
 
 if (process.env.NODE_ENV !== "test") {
     const port = 8000;

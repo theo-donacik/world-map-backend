@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import { getAdminState, setState } from '../../dao/adminState';
+import { getAdminState, scheduleWorldTimerAlerts, setState } from '../../dao/adminState';
 import { authenticateToken } from '../../util/authToken';
 
 const router = express.Router();
@@ -33,6 +33,7 @@ router.post('/', authenticateToken, async (req: any, res: any) => {
   const newState = await setState({timer: req.body.timer});
 
   if (newState) {
+    scheduleWorldTimerAlerts()
     res.send({"timer": newState.timer});
   } else {
     res.status(500).send({ message: 'Failed to save timer'});

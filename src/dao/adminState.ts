@@ -52,3 +52,38 @@ export async function sendNewUserInterestMessage(threadId: string, newUser: stri
   }
 }
 
+export async function scheduleWorldTimerAlerts() {
+  const state = await getAdminState()
+  const twoWeeks = 1209600000;
+  const oneWeek = 604800000;
+  const threeDays = 259200000;
+  const oneDay = 86400000;
+
+  const createTimeout = (timeout: number, stateWhenStarted: AdminState, message: string) => {
+    const delay = Math.max(0, stateWhenStarted.timer.getTime() - (Date.now() + timeout));
+
+    if(delay <= 0) {
+      return
+    }
+    
+    setTimeout(async () => {
+      getAdminState().then((currentState) => {
+        if(currentState && currentState.timer.getTime() === stateWhenStarted.timer.getTime()) {
+          const timeUntil = Math.max(0, currentState.timer.getTime() - Date.now());
+          if(timeUntil <= timeout) {
+            sendMessage(currentState.updatesChannel.id, message) 
+          }
+        }
+      })
+    }, delay)
+  }
+
+  if(state) {
+    createTimeout(0, state, "The timer is over")
+    createTimeout(oneDay, state, "24 Hours Remain")
+    createTimeout(threeDays, state, "3 Days Remain")
+    createTimeout(oneWeek, state, "1 Week Remains")
+    createTimeout(twoWeeks, state, "2 Weeks Remian")
+  }
+}
+
